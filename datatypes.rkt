@@ -2,22 +2,25 @@
 
 (require (lib "eopl.ss" "eopl"))
 
-(provide stmt stmt? assign-stmt side-effect-stmt return-value-stmt return-novalue-stmt global-stmt pass-stmt continue-stmt break-stmt def-stmt default-stmt if-stmt for-stmt
+(provide stmt stmt? assign-stmt side-effect-stmt return-value-stmt return-novalue-stmt global-stmt pass-stmt continue-stmt break-stmt def-stmt if-stmt for-stmt
     expr expr? num-expr app-expr ident-expr
+    param param? param-with-default
     val val? num-val proc-val none-val
     force-num force-proc)
 
+(define-datatype param param?
+    (param-with-default (name symbol?) (default expr?)))
+
 (define-datatype stmt stmt?
-    (assign-stmt (name expr?) (value expr?))
+    (assign-stmt (name symbol?) (value expr?))
     (side-effect-stmt (e expr?))
     (return-value-stmt (e expr?))
     (return-novalue-stmt)
-    (global-stmt (e expr?))
+    (global-stmt (e symbol?))
     (pass-stmt)
     (continue-stmt)
     (break-stmt)
-    (def-stmt (name expr?) (params list?) (statements list?))
-    (default-stmt (name expr?) (value expr?))
+    (def-stmt (name symbol?) (params list?) (statements list?))
     (if-stmt (condition expr?) (statements list?) (else-block list?))
     (for-stmt (counter expr?) (count-set list?) (statements list?)))
 

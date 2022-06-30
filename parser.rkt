@@ -85,18 +85,18 @@
     (compound_stmt ((function_def) $1)
                    ((if_stmt) $1)
                    ((for_stmt) $1))
-    (assignment ((IDENT sg-eq expression) (assign-stmt (ident-expr $1) $3)))
+    (assignment ((IDENT sg-eq expression) (assign-stmt $1 $3)))
     (return_stmt ((kw-ret) (return-novalue-stmt))
                  ((kw-ret expression) (return-value-stmt $2)))
-    (global_stmt ((kw-global IDENT) (global-stmt (ident-expr $2))))
-    (function_def ((kw-def IDENT sg-popen params sg-pclose sg-colon statements) (def-stmt (ident-expr $2) $4 $7))
-                  ((kw-def IDENT sg-popen sg-pclose sg-colon statements) (def-stmt (ident-expr $2) (list) $6)))
+    (global_stmt ((kw-global IDENT) (global-stmt $2)))
+    (function_def ((kw-def IDENT sg-popen params sg-pclose sg-colon statements) (def-stmt $2 $4 $7))
+                  ((kw-def IDENT sg-popen sg-pclose sg-colon statements) (def-stmt $2 (list) $6)))
     (params ((param_with_default) (list $1))
             ((params sg-comma param_with_default) (append $1 (list $3))))
-    (param_with_default ((IDENT sg-eq expression) (default-stmt (ident-expr $1) $3)))
+    (param_with_default ((IDENT sg-eq expression) (param-with-default $1 $3)))
     (if_stmt ((kw-if expression sg-colon statements else_block) (if-stmt $2 $4 $5)))
     (else_block ((kw-else statements) $2))
-    (for_stmt ((kw-for IDENT kw-in expression sg-colon statements) (for-stmt (ident-expr $2) $4 $6)))
+    (for_stmt ((kw-for IDENT kw-in expression sg-colon statements) (for-stmt $2 $4 $6)))
     (expression ((disjunction) $1))
     (disjunction ((conjunction) $1)
                  ((disjunction kw-or conjunction) (pf2 '$or $1 $3)))
@@ -153,9 +153,9 @@
 ;;    b = 3 or a * 3 ** -3 and a;
 ;; ")
 
-(str-to-sexp "
-    a = 2;
-    b = 3;
-    c = a + b;
-    print(c);
-")
+;; (str-to-sexp "
+;;     a = 2;
+;;     b = 3;
+;;     c = a + b;
+;;     print(c);
+;; ")

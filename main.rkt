@@ -7,10 +7,10 @@
 
 
 (let [(parser-res (str-to-sexp "
+    print(1);
     a = 2;
-    b = 3;
-    c = 2 + 3;
-    print(5 + c);
+    print(a * 3 + 2);
+    print(3);
 "))
 (env (box prelude-env))] (let
 [(ignore (eval-stmts env parser-res))] 'finished))

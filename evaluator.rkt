@@ -28,6 +28,7 @@
 (define prelude-env (env-exlist empty-env
     (list
         (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print arg)]) none-val))))
+        (list '$mul (pnf2 *))
         (list '$plus (pnf2 +)))))
 
 (define (eval-expr env e)
