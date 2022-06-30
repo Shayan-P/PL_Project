@@ -78,6 +78,7 @@
     (simple_stmt ((assignment) $1)
                  ((global_stmt) $1)
                  ((return_stmt) $1)
+                 ((expression) (side-effect-stmt $1))
                  ((kw-pass) (pass-stmt))
                  ((kw-break) (continue-stmt))
                  ((kw-cont) (break-stmt)))
@@ -143,11 +144,18 @@
 (define my-lexer (lex-this simple-math-lexer (open-input-string "1+2+ 3 +   4")))
 
 (define (str-to-sexp x) (simple-math-parser (lex-this simple-math-lexer (open-input-string x))))
+;; (str-to-sexp "
+;;     def f(x=0, y=1):
+;;     return x
+;;      ;;
+;;    a = f(2, 3);
+;;    a = f(a);
+;;    b = 3 or a * 3 ** -3 and a;
+;; ")
+
 (str-to-sexp "
-    def f(x=0, y=1):
-    return x
-     ;;
-   a = f(2, 3);
-   a = f(a);
-   b = 3 or a * 3 ** -3 and a;
+    a = 2;
+    b = 3;
+    c = a + b;
+    print(c);
 ")

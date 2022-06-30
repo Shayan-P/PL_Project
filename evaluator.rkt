@@ -11,7 +11,7 @@
     (cases stmt s
         (side-effect-stmt (e) (eval-expr env e))
         (assign-stmt (name val) (benv-extend! env name (eval-expr env val)))
-        (else 'TODO')))
+        (else (error 'TODO))))
 
 (define (env-lookup env v) (env v))
 (define (env-extend env name val) (lambda (n) (if (eq? name n) val (env n))))

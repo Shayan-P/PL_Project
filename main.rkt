@@ -9,8 +9,8 @@
 (let [(parser-res (str-to-sexp "
     a = 2;
     b = 3;
-    c = a + b;
-    print(c);
+    c = 2 + 3;
+    print(5 + c);
 "))
 (env (box prelude-env))] (let
 [(ignore (eval-stmts env parser-res))] 'finished))
