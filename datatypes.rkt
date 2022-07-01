@@ -20,9 +20,9 @@
     (pass-stmt)
     (continue-stmt)
     (break-stmt)
-    (def-stmt (name symbol?) (params list?) (statements list?))
-    (if-stmt (condition expr?) (statements list?) (else-block list?))
-    (for-stmt (counter expr?) (count-set list?) (statements list?)))
+    (def-stmt (name symbol?) (params (listof param?)) (statements (listof stmt?)))
+    (if-stmt (condition expr?) (then-block (listof stmt?)) (else-block (listof stmt?)))
+    (for-stmt (counter expr?) (count-set expr?) (statements (listof stmt?))))
 
 (define-datatype expr expr?
     (num-expr (v number?))
