@@ -38,14 +38,17 @@
 
 (define (pnf2 f)
     (proc-val (lambda (e arg1)
-        (proc-val (lambda (e arg2) (num-val (f (force-num arg1) (force-num arg2))))))))
+        (proc-val (lambda (e arg2) (if (is-num? arg1) 
+        (num-val (f (force-num arg1) (force-num arg2)))
+        (list-val (f (force-list arg1) (force-list arg2)))
+        ))))))
 
 (define (empty-env name) (error 'name-not-found (symbol->string name)))
 (define prelude-env (env-exlist empty-env
     (list
         (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print arg)]) none-val))))
         (list '$mul (pnf2 *))
-        (list '$plus (pnf2 +))
+        (list '$plus (pnf2 (lambda (a b) (if (list? a) (append a b) (+ a b)))))
         (list `$pow (pnf2 expt))
         (list `$minus (pnf2 -))
         (list `$div (pnf2 /))
@@ -61,5 +64,5 @@
         (num-expr (v) (num-val v))
         (ident-expr (v) (benv-lookup env v))
         (app-expr (rator rand) ((force-proc (eval-expr env rator)) env (eval-expr env rand)))
-        (list-expr (v) (list-expr v))
+        (list-expr (v) (list-val (map (lambda (e) (eval-expr env e)) v)))
         ))

@@ -8,10 +8,10 @@
 
 
 (let [(parser-res (str-to-sexp "
-    def t():
-        print(5);
-        ;
-    print(t());
+    a=[1,2,3];
+    b=[4,5];
+    print(a+b);
+    print(3+5);
 "))
 (env (box prelude-env))] (let
 [ (ignore (eval-stmts env (debug parser-res)))] 'finished))
