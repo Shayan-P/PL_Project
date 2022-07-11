@@ -125,7 +125,7 @@
     (primary ((patom) $1)
              ((primary sg-sbopen expression sg-sbclose) (pf2 '$index $1 $3))
              ((primary sg-popen sg-pclose) (pfn $1 (list (end-of-args-expr))))
-             ((primary sg-popen arguments sg-pclose) (pfn $1 (append (reverse $3) (list (end-of-args-expr))))))
+             ((primary sg-popen arguments sg-pclose) (pfn $1 (append (list (end-of-args-expr)) (reverse $3) ))))
     (arguments ((expression) (list $1))
                ((arguments sg-comma expression) (append $1 (list $3))))
     (patom ((IDENT) (ident-expr $1))
