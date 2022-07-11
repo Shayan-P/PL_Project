@@ -60,4 +60,6 @@
     (cases expr e
         (num-expr (v) (num-val v))
         (ident-expr (v) (benv-lookup env v))
-        (app-expr (rator rand) ((force-proc (eval-expr env rator)) env (eval-expr env rand)))))
+        (app-expr (rator rand) ((force-proc (eval-expr env rator)) env (eval-expr env rand)))
+        (list-expr (v) (list-expr v))
+        ))
