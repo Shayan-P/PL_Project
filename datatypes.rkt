@@ -5,8 +5,8 @@
 (provide stmt stmt? assign-stmt side-effect-stmt return-value-stmt return-novalue-stmt global-stmt pass-stmt continue-stmt break-stmt def-stmt if-stmt for-stmt
     expr expr? num-expr app-expr ident-expr
     param param? param-with-default
-    val val? num-val proc-val none-val
-    force-num force-proc)
+    val val? num-val proc-val none-val non-return is-programmer-forbided-val?
+    force-num force-proc programmer-forbided-val)
 
 (define-datatype param param?
     (param-with-default (name symbol?) (default expr?)))
@@ -32,7 +32,14 @@
 (define-datatype val val?
     (num-val (v number?))
     (proc-val (f procedure?))
-    (none-val))
+    (none-val)
+    (programmer-forbided-val))
+
+(define non-return (lambda (s)  (programmer-forbided-val) ))
+(define (is-programmer-forbided-val? v)
+    (cases val v
+        (programmer-forbided-val () #t )
+        (else #f )))
 
 (define (force-num v)
     (cases val v

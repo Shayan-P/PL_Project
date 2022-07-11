@@ -6,28 +6,24 @@
 (provide eval-stmts prelude-env benv-lookup )
 
 (define debug (lambda (s) (let [(t1 (pretty-print `************))(t2 (our-pretty-print s))(t3 (pretty-print `*********))] s)))
-(define pipe-none-val (lambda (s)  (none-val ) ))
-(define (is-none? v)
-    (cases val v
-        (none-val () #t )
-        (else #f )))
 
 
 (define our-pretty-print (lambda (s)
  (if (procedure? s) (display s) (display s ))))
 
 (define (eval-stmts env l)
-    (if (null?  l) 'end (let [(ignore (eval-stmt env (car l)))] (eval-stmts env (cdr l)))))
+    (eval-stmts-with-return env l))
 
 (define (eval-stmts-with-return env l)
-    (if (null?  l) (none-val) (let [(val (eval-stmt env (car l)))] (if (is-none? val) (eval-stmts-with-return env (cdr l)) val))))
+    (if (null?  l) (programmer-forbided-val) (let [(val (eval-stmt env (car l)))] (if (is-programmer-forbided-val? val) (eval-stmts-with-return env (cdr l)) val))))
 
 (define (eval-stmt env s)
     (cases stmt s
-        (side-effect-stmt (e) (pipe-none-val(eval-expr env e)))
-        (assign-stmt (name val) (pipe-none-val(benv-extend! env name (eval-expr env val))))
-        (def-stmt (name arg body) (pipe-none-val(benv-extend! env name (function-builder body))))
+        (side-effect-stmt (e) (non-return(eval-expr env e)))
+        (assign-stmt (name val) (non-return(benv-extend! env name (eval-expr env val))))
+        (def-stmt (name arg body) (non-return(benv-extend! env name (function-builder body))))
         (return-value-stmt (e) (eval-expr env e))
+        (if-stmt (cond true false) (if (= (force-num (eval-expr env cond)) 1) (eval-stmts-with-return env true) (eval-stmts-with-return env false)))
         (else (error 'TODO))))
 
 (define (function-builder body) 
@@ -53,7 +49,12 @@
         (list `$pow (pnf2 expt))
         (list `$minus (pnf2 -))
         (list `$div (pnf2 /))
-        (list `$dummy (pnf2 *)))))
+        (list `$dummy (pnf2 *))
+        (list `$eq? (pnf2 (lambda (a b) (if (= a b) 1 0))))
+        (list `$lt? (pnf2 (lambda (a b) (if (< a b) 1 0))))
+        (list `$gt? (pnf2 (lambda (a b) (if (> a b) 1 0))))
+
+        )))
 
 (define (eval-expr env e)
     (cases expr e
