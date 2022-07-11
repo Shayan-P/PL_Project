@@ -73,5 +73,6 @@
         (num-expr (v) (num-val v))
         (ident-expr (v) (benv-lookup env v))
         (app-expr (rator rand) ((force-proc (eval-expr env rator)) env (eval-expr env rand)))
+        (end-of-args-expr () (error 'broken))
         (list-expr (v) (list-val (map (lambda (e) (eval-expr env e)) v)))
         ))

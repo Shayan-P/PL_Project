@@ -3,7 +3,7 @@
 (require (lib "eopl.ss" "eopl"))
 
 (provide stmt stmt? assign-stmt side-effect-stmt return-value-stmt return-novalue-stmt global-stmt pass-stmt continue-stmt break-stmt def-stmt if-stmt for-stmt
-    expr expr? num-expr app-expr ident-expr list-expr
+    expr expr? num-expr app-expr ident-expr list-expr end-of-args-expr
     param param? param-with-default is-num? is-break? break-val is-continue? continue-val
     val val? num-val proc-val none-val non-return list-val
     force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val?)
@@ -25,6 +25,7 @@
     (for-stmt (counter symbol?) (count-set expr?) (statements (listof stmt?))))
 
 (define-datatype expr expr?
+    (end-of-args-expr)
     (num-expr (v number?))
     (ident-expr (v symbol?))
     (list-expr (v (listof expr?)))
