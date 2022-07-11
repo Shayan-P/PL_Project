@@ -10,13 +10,14 @@
 (let [(parser-res (str-to-sexp "
     def fib(a=3):
         a=a+1;
-        if  a<7 and not a>8:
+        if  a<7 and not a>8 and False:
             print(a);
         else:
             print(3);
             ;
+        return None;
         ;
-    fib();
+    print(fib());
     fib();
     fib();
     fib();
