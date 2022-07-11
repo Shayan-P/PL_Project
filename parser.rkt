@@ -133,7 +133,7 @@
           ((kw-false) (ident-expr '$f))
           ((kw-none) (ident-expr '$none))
           ((NUM) (num-expr $1))
-          ((plist) $1))
+          ((plist) (list-expr $1)))
     (plist ((sg-sbopen expressions sg-sbclose) $2)
            ((sg-sbopen sg-sbclose) (list)))
     (expressions ((expressions sg-comma expression) (append $1 (list $3)))
