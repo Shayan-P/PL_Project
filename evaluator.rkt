@@ -75,6 +75,7 @@
 (define prelude-env (env-exlist empty-env
     (list
         (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print arg)]) end-of-args-expr-eater))))
+        (list '$not (proc-val (lambda (e arg) (num-val (- 1 (force-num arg))))))
         (list '$mul (pnf2 *))
         (list '$plus (pnf2 (lambda (a b) (if (list? a) (append a b) (+ a b)))))
         (list `$pow (pnf2 expt))
@@ -84,7 +85,8 @@
         (list `$eq? (pnf2 (lambda (a b) (if (= a b) 1 0))))
         (list `$lt? (pnf2 (lambda (a b) (if (< a b) 1 0))))
         (list `$gt? (pnf2 (lambda (a b) (if (> a b) 1 0))))
-
+        (list `$or (pnf2 (lambda (a b) (max a b))))
+        (list `$and (pnf2 (lambda (a b) (min a b))))
         )))
 
 (define (eval-expr env e)

@@ -10,7 +10,11 @@
 (let [(parser-res (str-to-sexp "
     def fib(a=3):
         a=a+1;
-        print(a);
+        if  a<7 and not a>8:
+            print(a);
+        else:
+            print(3);
+            ;
         ;
     fib();
     fib();
