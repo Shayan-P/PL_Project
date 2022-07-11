@@ -4,7 +4,7 @@
 
 (provide stmt stmt? assign-stmt side-effect-stmt return-value-stmt return-novalue-stmt global-stmt pass-stmt continue-stmt break-stmt def-stmt if-stmt for-stmt
     expr expr? num-expr app-expr ident-expr list-expr
-    param param? param-with-default is-num?
+    param param? param-with-default is-num? is-break? break-val is-continue? continue-val
     val val? num-val proc-val none-val non-return list-val
     force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val?)
 
@@ -35,7 +35,9 @@
     (proc-val (f procedure?))
     (list-val (v (listof val?)))
     (none-val)
-    (programmer-forbided-val))
+    (programmer-forbided-val)
+    (break-val)
+    (continue-val))
 
 (define non-return (lambda (s)  (programmer-forbided-val) ))
 (define (is-programmer-forbided-val? v)
@@ -43,6 +45,17 @@
         (programmer-forbided-val () #t )
         (else #f )))
 
+(define (is-break? v)
+    (cases val v
+        (break-val () #t )
+        (else #f )))
+
+
+(define (is-continue? v)
+    (cases val v
+        (continue-val () #t )
+        (else #f )))
+        
 (define (force-num v)
     (cases val v
         (num-val (r) r)

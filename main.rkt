@@ -8,10 +8,17 @@
 
 
 (let [(parser-res (str-to-sexp "
-    a=[1,2,3];
-    b=[4,5];
-    print(a+b);
-    print(3+5);
+    a=[1,2,3,4];
+    for i in a :
+        print(i);
+        if i == 3:
+            continue;
+        else:
+            print(5);
+            ;
+        print(7);
+        ;
+    print(6);
 "))
 (env (box prelude-env))] (let
 [ (ignore (eval-stmts env (debug parser-res)))] 'finished))
