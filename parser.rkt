@@ -95,7 +95,7 @@
             ((params sg-comma param_with_default) (append $1 (list $3))))
     (param_with_default ((IDENT sg-eq expression) (param-with-default $1 $3)))
     (if_stmt ((kw-if expression sg-colon statements else_block) (if-stmt $2 $4 $5)))
-    (else_block ((kw-else statements) $2))
+    (else_block ((kw-else sg-colon statements) $3))
     (for_stmt ((kw-for IDENT kw-in expression sg-colon statements) (for-stmt $2 $4 $6)))
     (expression ((disjunction) $1))
     (disjunction ((conjunction) $1)
