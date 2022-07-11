@@ -8,19 +8,18 @@
 
 
 (let [(parser-res (str-to-sexp "
-    def fib(a=3):
-        a=a+1;
-        if  a<7 and not a>8 and False:
-            print(a);
+    def fib(a=10):
+        if a==0:
+            return 1;
         else:
-            print(3);
+            if a==1:
+                return 1;
+            else:
+                return fib(a-1)+fib(a-2);
+                ;
             ;
-        return None;
         ;
     print(fib());
-    fib();
-    fib();
-    fib();
 "))
 (env (box prelude-env))] (let
 [ (ignore (eval-stmts env env (debug parser-res)))] 'finished))
