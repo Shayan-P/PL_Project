@@ -20,15 +20,15 @@
 (define (eval-stmt global-env env s)
     (let [(r (cases stmt  s
         (side-effect-stmt (e) (non-return(eval-expr global-env env e)))
-        (assign-stmt (name val) (non-return(benv-extend! env name (eval-expr global-env env val))))
-        (def-stmt (name arg body) (non-return(benv-extend! env name (first-function-builder name body arg env))))
+        (assign-stmt (name val) (non-return(benv-extend-rep! env name (eval-expr global-env env val))))
+        (def-stmt (name arg body) (non-return(benv-extend-rep! env name (first-function-builder name body arg env))))
         (return-value-stmt (e) (eval-expr global-env env e))
         (if-stmt (cond true false) (if (force-bool (eval-expr global-env env cond)) (eval-stmts-with-return global-env env true) (eval-stmts-with-return global-env env false)))
         (for-stmt (counter-name list body) (for global-env env counter-name (force-list (eval-expr global-env env list)) body ))
         (break-stmt () (break-val))
         (continue-stmt () (continue-val))
         (pass-stmt () (programmer-forbided-val))
-        (global-stmt (name) (non-return(benv-extend-direct! env (debug name) (env-lookup-direct  global-env name))))
+        (global-stmt (name) (non-return(benv-extend-direct! env  name (env-lookup-direct  global-env name))))
         (else (error 'TODO))))] (let [
           ; (x1 (pretty-print r)) (x2 (pretty-print s)) (x3 (pretty-print `^*^*^*^))
             ] r)))
@@ -57,13 +57,14 @@
 
 (define (env-extend-inplace env name val) (let [(ignore (benv-extend! env name val))] env))
 (define (env-lookup env v) (unbox (env v)))
-(define (env-lookup-direct env v) (env v))
+(define (env-lookup-direct env v) ((unbox env) v))
 
 (define (env-extend env name val) (lambda (n) (if (eq? name n) val (env n))))
 (define (env-exlist env l) (foldl (lambda (p e) (env-extend e (car p) (box (cadr p)))) env l))
 
 (define (benv-lookup benv v) (env-lookup (unbox benv) v))
 (define (benv-extend! benv name val) (set-box! benv (env-extend (unbox benv) name (box val))))
+(define (benv-extend-rep! benv name val) (if (is-not-found-val? (benv-lookup benv name)) (set-box! benv (env-extend (unbox benv) name (box val))) (set-box! ((unbox benv) name) val)))
 (define (benv-extend-direct! benv name box) (set-box! benv (env-extend (unbox benv) name box)))
 (define (merge global-env env) (box (lambda (n) (let [(val ((unbox env) n) )] (if (is-not-found-val? (unbox val)) ((unbox global-env) n) val)))))
 (define (add-self global-env name) (env-extend prelude-env name (box (benv-lookup global-env name))))

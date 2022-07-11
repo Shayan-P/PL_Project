@@ -20,6 +20,15 @@
             ;
         ;
     print(fib());
+    d=8;
+    def tt(a=4):
+        d=5;
+        global d;
+        print(d);
+        d=d+5;
+        ;
+    tt();
+    print(d);
 "))
 (env (box prelude-env))] (let
 [ (ignore (eval-stmts env env (debug parser-res)))] 'finished))
