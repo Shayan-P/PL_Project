@@ -21,12 +21,13 @@
     (let [(r (cases stmt s
         (side-effect-stmt (e) (non-return(eval-expr env e)))
         (assign-stmt (name val) (non-return(benv-extend! env name (eval-expr env val))))
-        (def-stmt (name arg body) (non-return(benv-extend! env name (function-builder body))))
+        (def-stmt (name arg body) (non-return(benv-extend! env name (function-builder body arg))))
         (return-value-stmt (e) (eval-expr env e))
         (if-stmt (cond true false) (if (= (force-num (eval-expr env cond)) 1) (eval-stmts-with-return env true) (eval-stmts-with-return env false)))
         (for-stmt (counter-name list body) (for env counter-name (force-list (eval-expr env list)) body ))
         (break-stmt () (break-val))
         (continue-stmt () (continue-val))
+        (pass-stmt () (programmer-forbided-val))
         (else (error 'TODO))))] (let [
            ; (x1 (pretty-print r)) (x2 (pretty-print s)) (x3 (pretty-print `^*^*^*^))
             ] r)))
@@ -34,7 +35,7 @@
 (define (for env counter-name list body)
     (if (null? list) (programmer-forbided-val) 
     (let [(ignore (benv-extend! env counter-name (car list)))] (let [(val (eval-stmts-with-return env body))] (if (is-break? val) (programmer-forbided-val) (if (or (is-programmer-forbided-val? val) (is-continue? val))  (for env counter-name (cdr list) body) val))))))
-(define (function-builder body) 
+(define (function-builder body arg) 
     (proc-val (lambda (env dummy) (let [] (eval-stmts-with-return env body)))))
 
 (define (env-lookup env v) (env v))
