@@ -22,7 +22,7 @@
     (break-stmt)
     (def-stmt (name symbol?) (params (listof param?)) (statements (listof stmt?)))
     (if-stmt (condition expr?) (then-block (listof stmt?)) (else-block (listof stmt?)))
-    (for-stmt (counter expr?) (count-set expr?) (statements (listof stmt?))))
+    (for-stmt (counter symbol?) (count-set expr?) (statements (listof stmt?))))
 
 (define-datatype expr expr?
     (num-expr (v number?))
