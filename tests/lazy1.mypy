@@ -1,0 +1,14 @@
+def fib(a=10):
+    if a==0:
+        return 1;
+    else:  
+        print(8);
+        return fib(a-1)+1;
+        ;
+    ;
+def meaningless(a=10):
+    return 0;
+    ;
+a=fib(6);
+b=a+1;
+print(meaningless(fib(5)*fib(7))*fib(8));

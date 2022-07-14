@@ -1,0 +1,11 @@
+def sum(l=[], f=None):
+    a = 0;
+    for x in l:
+        a = x + a;
+        ;
+    return a;
+    ;
+
+print(sum([1, 2, 3]))
+print(sum([1, 10, 100]));
+print(sum([]));

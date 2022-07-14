@@ -1,0 +1,16 @@
+def id(a=10):
+    if a==0:
+        return 0;
+    else:  
+        print(222222);
+        print(a);
+        return id(a-1)+1;
+        ;
+    ;
+def meaningless(a=10):
+    return 0;
+    ;
+a=id(6);
+b=a+1;
+print(id(1)*id(4));
+print(id(2)*id(0)*id(8));
