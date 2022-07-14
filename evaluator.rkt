@@ -20,8 +20,8 @@
 (define (eval-stmt global-env env s)
     (let [(r (cases stmt  s
         (side-effect-stmt (e) (non-return(eval-expr global-env env e)))
-        (assign-stmt (name val) (non-return(benv-extend-rep! env name (eval-expr global-env env val))))
-        (def-stmt (name arg body) (non-return(benv-extend-rep! env name (first-function-builder name body arg env))))
+        (assign-stmt (name val) (non-return(benv-extend-replace! env name (lazy-eval-expr global-env env val))))
+        (def-stmt (name arg body) (non-return(benv-extend-replace! env name (first-function-builder name body arg env))))
         (return-value-stmt (e) (eval-expr global-env env e))
         (if-stmt (cond true false) (if (force-bool (eval-expr global-env env cond)) (eval-stmts-with-return global-env env true) (eval-stmts-with-return global-env env false)))
         (for-stmt (counter-name list body) (for global-env env counter-name (force-list (eval-expr global-env env list)) body ))
@@ -51,9 +51,7 @@
 (define (first-function-builder name body args build-env)
     (if (null?  args) (proc-val (lambda (global-env dummy) (eval-stmts-with-return global-env (box (add-self global-env name)) body)) )
     (proc-val (lambda (global-env potential-arg) (if (is-end-of-args-val?  potential-arg) (add-rest-of-arg-and-eval body args (box (add-self global-env name)) global-env build-env)
-    (function-builder name body (cdr args) (env-extend-inplace (box (add-self global-env name)) (get-name-arg (car args))  potential-arg) build-env))) )))
-
-
+    (function-builder name body (cdr args) (env-extend-inplace (box (add-self global-env name)) (get-name-arg (car args))  potential-arg) build-env))))))
 
 (define (env-extend-inplace env name val) (let [(ignore (benv-extend! env name val))] env))
 (define (env-lookup env v) (unbox (env v)))
@@ -62,37 +60,66 @@
 (define (env-extend env name val) (lambda (n) (if (eq? name n) val (env n))))
 (define (env-exlist env l) (foldl (lambda (p e) (env-extend e (car p) (box (cadr p)))) env l))
 
+(define (deep-copy env) (box (unbox env))) ;'TODO
+
+(define (benv-lookup-not-tank benv name) (let [(v (benv-lookup benv name))] 
+    (cases val v
+        (tank (e local-env global-env) (let [(com-val (eval-expr global-env local-env e))] 
+        (let [(ignore (benv-extend-replace! benv name com-val))] com-val)
+        ))
+        (else v )))
+)
+(define (force-not-tank v) 
+    (cases val v
+        (tank (e local-env global-env)  (eval-expr global-env local-env e))
+        (else v ))
+)
+
 (define (benv-lookup benv v) (env-lookup (unbox benv) v))
 (define (benv-extend! benv name val) (set-box! benv (env-extend (unbox benv) name (box val))))
-(define (benv-extend-rep! benv name val) (if (is-not-found-val? (benv-lookup benv name)) (set-box! benv (env-extend (unbox benv) name (box val))) (set-box! ((unbox benv) name) val)))
+(define (benv-extend-replace! benv name val) (if (is-not-found-val? (benv-lookup benv name)) (set-box! benv (env-extend (unbox benv) name (box val))) (set-box! ((unbox benv) name) val)))
 (define (benv-extend-direct! benv name box) (set-box! benv (env-extend (unbox benv) name box)))
 (define (merge global-env env) (box (lambda (n) (let [(val ((unbox env) n) )] (if (is-not-found-val? (unbox val)) ((unbox global-env) n) val)))))
 (define (add-self global-env name) (env-extend prelude-env name (box (benv-lookup global-env name))))
 
+
 (define (pnf2 f)
     (proc-val (lambda (e arg1)
-        (proc-val (lambda (e arg2) (if (is-num? arg1) 
-        (num-val (f (force-num arg1) (force-num arg2)))
-        (list-val (f (force-list arg1) (force-list arg2)))
-        )) ))))
+        (proc-val (lambda (e arg2) 
+        (let [(arg1-not-tank (force-not-tank arg1)) (arg2-not-tank (force-not-tank arg2))]
+        (if (is-num? arg1-not-tank) 
+        (num-val (f (force-num arg1-not-tank) (force-num arg2-not-tank)))
+        (list-val (f (force-list arg1-not-tank) (force-list arg2-not-tank)))
+        )))))))
+
+
+(define (mulfunc)
+    (proc-val (lambda (e arg1)
+        (proc-val (lambda (e arg2) 
+        (let [(arg1-not-tank (force-num (force-not-tank arg1)))]
+            (if (zero? arg1-not-tank) 
+                (num-val 0)
+                (let [(arg2-not-tank (force-num (force-not-tank arg2)))]
+                    (num-val (* arg1-not-tank arg2-not-tank))
+                        ))))))))
 
 (define (pnf2bool f)
     (proc-val (lambda (e arg1)
         (proc-val (lambda (e arg2)  
-        (bool-val (f (force-bool arg1) (force-bool arg2)))) )) ))
+        (bool-val (f (force-bool (force-not-tank arg1)) (force-bool (force-not-tank arg2))))) )) ))
 
 (define (pnf2-num-to-bool f)
     (proc-val (lambda (e arg1)
         (proc-val (lambda (e arg2)  
-        (bool-val (f (force-num arg1) (force-num arg2)))) )) ))
+        (bool-val (f (force-num (force-not-tank arg1)) (force-num (force-not-tank arg2)))))))))
 
 (define end-of-args-expr-eater (proc-val (lambda (e arg) none-val)))
 (define (empty-env name) (box(not-found-val name)))
 (define prelude-env (env-exlist empty-env
     (list
-        (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print arg)]) end-of-args-expr-eater)) ))
-        (list '$not (proc-val (lambda (e arg) (bool-val (not (force-bool arg)))) ))
-        (list '$mul (pnf2 *))
+        (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print (force-not-tank arg))]) end-of-args-expr-eater)) ))
+        (list '$not (proc-val (lambda (e arg) (bool-val (not (force-bool (force-not-tank arg)))))))
+        (list '$mul (mulfunc))
         (list '$plus (pnf2 (lambda (a b) (if (list? a) (append a b) (+ a b)))))
         (list `$pow (pnf2 expt))
         (list `$minus (pnf2 -))
@@ -108,15 +135,27 @@
         (list `$none (none-val))
         )))
 
+
+(define (lazy-eval-expr global-env env e)
+    (cases expr e
+        (num-expr (v) (num-val v))
+        (ident-expr (v) (benv-lookup-not-tank env v))
+        (end-of-args-expr () (end-of-args-val))
+        (app-expr (rator rand) (tank e (deep-copy env) (deep-copy global-env) ))
+        (list-expr (v) (list-val (map (lambda (e) (lazy-eval-expr global-env env e)) v)))
+        ))
+
 (define (eval-expr global-env env e)
     (cases expr e
         (num-expr (v) (num-val v))
-        (ident-expr (v) (benv-lookup env v))
+        (ident-expr (v) (benv-lookup-not-tank env v))
         (app-expr (rator rand) (let [(solved-rator  (eval-expr global-env env rator))
-                                        (solved-rand (eval-expr global-env env rand))
+                                        (solved-rand (lazy-eval-expr global-env env rand))
                                         (merged-env (merge global-env env))]
-                                        ((force-proc solved-rator) merged-env solved-rand)
+                                        (let [
+                                           ; (ignore (display solved-rator))
+                                            ] ((force-proc solved-rator) merged-env solved-rand))
                                         ))
-        (end-of-args-expr () (end-of-args-val))
         (list-expr (v) (list-val (map (lambda (e) (eval-expr global-env env e)) v)))
+        (end-of-args-expr () (end-of-args-val))
         ))

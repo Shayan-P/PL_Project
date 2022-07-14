@@ -5,7 +5,7 @@
 (provide stmt stmt? assign-stmt side-effect-stmt return-value-stmt return-novalue-stmt global-stmt pass-stmt continue-stmt break-stmt def-stmt if-stmt for-stmt
     expr expr? num-expr app-expr ident-expr list-expr end-of-args-expr end-of-args-val is-end-of-args-val?
     param param? param-with-default is-num? is-break? break-val is-continue? continue-val is-bool? not-found-val is-not-found-val?
-    val val? num-val proc-val none-val non-return list-val get-name-arg get-defualt-arg bool-val force-bool 
+    val val? num-val proc-val none-val non-return list-val get-name-arg get-defualt-arg bool-val force-bool tank is-tank? 
     force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val?)
 
 (define-datatype param param?
@@ -41,6 +41,7 @@
 
 
 (define-datatype val val?
+    (tank (exp expr?) (local-env box?) (global-env box?))
     (num-val (v number?))
     (proc-val (f procedure?))
     (list-val (v (listof val?)))
@@ -58,6 +59,10 @@
         (programmer-forbided-val () #t )
         (else #f )))
 
+(define (is-tank? v)
+    (cases val v
+        (tank (e local-env global-env) #t )
+        (else #f )))
 
 (define debug (lambda (s) (let [(t1 (pretty-print `************))(t2 (pretty-print s))(t3 (pretty-print `*********))] s)))
 
@@ -95,7 +100,7 @@
 (define (force-bool v)
     (cases val v
         (bool-val (r) r)
-        (else (error 'value-is-not-number))))
+        (else (error 'value-is-not-bool))))
 
 (define (is-bool? v)
     (cases val v
@@ -110,4 +115,4 @@
 (define (force-list v)
     (cases val v
         (list-val (r) r)
-        (else (error 'value-is-not-number))))
+        (else (error 'value-is-not-list))))

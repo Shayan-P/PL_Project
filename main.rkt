@@ -11,24 +11,17 @@
     def fib(a=10):
         if a==0:
             return 1;
-        else:
-            if a==1:
-                return 1;
-            else:
-                return fib(a-1)+fib(a-2);
-                ;
+        else:  
+            print(8);
+            return fib(a-1)+1;
             ;
         ;
-    print(fib());
-    d=8;
-    def tt(a=4):
-        d=5;
-        global d;
-        print(d);
-        d=d+5;
+    def meaningless(a=10):
+        return 0;
         ;
-    tt();
-    print(d);
+    a=fib(6);
+    b=a+1;
+    print(meaningless(fib(5)*fib(7))*fib(8));
 "))
 (env (box prelude-env))] (let
 [ (ignore (eval-stmts env env (debug parser-res)))] 'finished))
