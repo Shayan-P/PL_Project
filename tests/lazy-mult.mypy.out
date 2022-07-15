@@ -1,17 +1,17 @@
-(num-val 222222)
-(num-val 1)
-(num-val 222222)
-(num-val 4)
-(num-val 222222)
-(num-val 3)
-(num-val 222222)
-(num-val 2)
-(num-val 222222)
-(num-val 1)
-(num-val 4)
-(num-val 222222)
-(num-val 2)
-(num-val 222222)
-(num-val 1)
-(num-val 0)
+222222
+1
+222222
+4
+222222
+3
+222222
+2
+222222
+1
+4
+222222
+2
+222222
+1
+0
 'finished

@@ -130,9 +130,17 @@
 
 (define end-of-args-expr-eater (proc-val (lambda (e arg) none-val)))
 
+(define (val-to-racket v)
+    (cases val v
+        (tank (e local-env global-env) (val-to-racket (eval-expr global-env local-env e)))
+        (num-val (v) v)
+        (bool-val (v) v)
+        (list-val (v) (map val-to-racket v))
+        (else (error 'unprintable-value))))
+
 (define prelude-env (env-exlist empty-benv
     (list
-        (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print (force-not-tank arg))]) end-of-args-expr-eater)) ))
+        (list 'print (proc-val (lambda (e arg) (let ([ignore (pretty-print (val-to-racket arg))]) end-of-args-expr-eater)) ))
         (list '$not (proc-val (lambda (e arg) (bool-val (not (force-bool (force-not-tank arg)))))))
         (list '$mul (mulfunc))
         (list '$plus (pnf2 (lambda (a b) (if (list? a) (append a b) (+ a b)))))
