@@ -6,6 +6,6 @@ def sum(l=[], f=None):
     return a;
     ;
 
-print(sum([1, 2, 3]))
+print(sum([1, 2, 3]));
 print(sum([1, 10, 100]));
 print(sum([]));
