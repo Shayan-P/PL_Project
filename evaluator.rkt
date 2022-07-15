@@ -111,10 +111,17 @@
                     (num-val (* arg1-not-tank arg2-not-tank))
                         ))))))))
 
+(define (index)
+    (proc-val (lambda (e arg1)
+        (proc-val (lambda (e arg2) 
+        (let [(arg1-not-tank (force-list (force-not-tank arg1))) (arg2-not-tank (force-num (force-not-tank arg2)))]
+                    (list-ref arg1-not-tank arg2-not-tank)))))))
+
 (define (pnf2bool f)
     (proc-val (lambda (e arg1)
         (proc-val (lambda (e arg2)  
         (bool-val (f (force-bool (force-not-tank arg1)) (force-bool (force-not-tank arg2))))) )) ))
+
 
 (define (pnf2-num-to-bool f)
     (proc-val (lambda (e arg1)
@@ -141,6 +148,7 @@
         (list `$t (bool-val #t))
         (list `$f (bool-val #f))
         (list `$none (none-val))
+        (list `$index (index))
         )))
 
 
