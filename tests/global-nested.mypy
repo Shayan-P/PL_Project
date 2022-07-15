@@ -1,0 +1,10 @@
+def fx():
+    a=2;
+    def fy():
+        global a;
+        return a;
+        ;
+    return fy;
+    ;
+
+print(fx()());
