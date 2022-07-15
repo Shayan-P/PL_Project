@@ -1,0 +1,15 @@
+def map(l=[], f=None):
+    result = [];
+    for x in l:
+        result = result + [f(x)];
+        ;
+    return result;
+    ;
+
+def multitwo(x=5):
+    return 2 * x;
+    ;
+
+
+print(map([1, 2, 5], multitwo));
+

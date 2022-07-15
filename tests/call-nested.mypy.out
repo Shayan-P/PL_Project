@@ -1,0 +1,10 @@
+(num-val 5)
+(list-val
+ (list
+  (num-val 1)
+  (num-val 2)
+  (num-val 3)
+  (num-val 4)
+  (num-val 5)
+  (num-val 6)))
+'finished
