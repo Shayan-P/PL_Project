@@ -22,8 +22,8 @@
 (define (eval-stmt global-env env s)
     (let [(r (cases stmt  s
         (side-effect-stmt (e) (non-return(eval-expr global-env env e)))
-        (assign-stmt (name val) (non-return(benv-extend-replace! env name  (lazy-eval-expr global-env env val))))
-        (def-stmt (name arg body) (non-return(benv-extend-replace! env name (first-function-builder name body arg env))))
+        (assign-stmt (name otype val) (non-return(benv-extend-replace! env name  (lazy-eval-expr global-env env val))))
+        (def-stmt (name arg otype body) (non-return(benv-extend-replace! env name (first-function-builder name body arg env))))
         (return-value-stmt (e) (eval-expr global-env env e))
         (if-stmt (cond true false) (if (force-bool (force-not-tank (eval-expr global-env env cond))) (eval-stmts-with-return global-env env true) (eval-stmts-with-return global-env env false)))
         (for-stmt (counter-name list body) (for global-env env counter-name (force-list (force-not-tank (eval-expr global-env env list))) body ))

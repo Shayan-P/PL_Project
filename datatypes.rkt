@@ -6,21 +6,25 @@
     expr expr? num-expr app-expr ident-expr list-expr end-of-args-expr end-of-args-val is-end-of-args-val?
     param param? param-with-default is-num? is-break? break-val is-continue? continue-val is-bool? not-found-val is-not-found-val?
     val val? num-val proc-val none-val non-return list-val get-name-arg get-defualt-arg bool-val force-bool tank is-tank? 
-    force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val?)
+    force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val? program program? prog
+    type type? int-type bool-type float-type list-type none-type optional-type optional-type? empty-type some-type)
 
 (define-datatype param param?
-    (param-with-default (name symbol?) (default expr?)))
+    (param-with-default (name symbol?) (otype optional-type?) (default expr?)))
 
 (define (get-name-arg e)
     (cases param e
-        (param-with-default (name defualt) name)))
+        (param-with-default (name otype defualt) name)))
 
 (define (get-defualt-arg e)
     (cases param e
-        (param-with-default (name defualt) defualt)))
+        (param-with-default (name otype defualt) defualt)))
+
+(define-datatype program program?
+    (prog (lines (listof stmt?)) (type-check-enable boolean?)))
 
 (define-datatype stmt stmt?
-    (assign-stmt (name symbol?) (value expr?))
+    (assign-stmt (name symbol?) (otype optional-type?) (value expr?))
     (side-effect-stmt (e expr?))
     (return-value-stmt (e expr?))
     (return-novalue-stmt)
@@ -28,7 +32,7 @@
     (pass-stmt)
     (continue-stmt)
     (break-stmt)
-    (def-stmt (name symbol?) (params (listof param?)) (statements (listof stmt?)))
+    (def-stmt (name symbol?) (params (listof param?)) (otype optional-type?) (statements (listof stmt?)))
     (if-stmt (condition expr?) (then-block (listof stmt?)) (else-block (listof stmt?)))
     (for-stmt (counter symbol?) (count-set expr?) (statements (listof stmt?))))
 
@@ -52,6 +56,17 @@
     (continue-val)
     (end-of-args-val)
     (not-found-val (name symbol?)))
+
+(define-datatype type type?
+    (int-type)
+    (float-type)
+    (bool-type)
+    (list-type)
+    (none-type))
+
+(define-datatype optional-type optional-type?
+    (empty-type)
+    (some-type (a-type type?)))
 
 (define non-return (lambda (s)  (programmer-forbided-val) ))
 (define (is-programmer-forbided-val? v)

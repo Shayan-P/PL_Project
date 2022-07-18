@@ -1,0 +1,13 @@
+checked
+
+def add_one(n: int = 3) -> int :
+    return n + 1;
+    ;
+
+def f(n: int = 2)-> None:
+    a: int = add_one(n);
+    b = print(a);
+    ;
+c: None = f(7);
+c2 = f(10);
+
