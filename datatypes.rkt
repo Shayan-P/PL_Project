@@ -7,10 +7,10 @@
     param param? param-with-default is-num? is-break? break-val is-continue? continue-val is-bool? not-found-val is-not-found-val?
     val val? num-val proc-val none-val non-return list-val get-name-arg get-defualt-arg bool-val force-bool tank is-tank? 
     force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val? program program? prog
-    type type? int-type bool-type float-type list-type none-type optional-type optional-type? empty-type some-type)
+    type type? int-type bool-type float-type list-type none-type complex-type complex-type? primitive-type unknown-type dummy-type function-type or-type)
 
 (define-datatype param param?
-    (param-with-default (name symbol?) (otype optional-type?) (default expr?)))
+    (param-with-default (name symbol?) (a-type complex-type?) (default expr?)))
 
 (define (get-name-arg e)
     (cases param e
@@ -24,7 +24,7 @@
     (prog (lines (listof stmt?)) (type-check-enable boolean?)))
 
 (define-datatype stmt stmt?
-    (assign-stmt (name symbol?) (otype optional-type?) (value expr?))
+    (assign-stmt (name symbol?) (a-type complex-type?) (value expr?))
     (side-effect-stmt (e expr?))
     (return-value-stmt (e expr?))
     (return-novalue-stmt)
@@ -32,7 +32,7 @@
     (pass-stmt)
     (continue-stmt)
     (break-stmt)
-    (def-stmt (name symbol?) (params (listof param?)) (otype optional-type?) (statements (listof stmt?)))
+    (def-stmt (name symbol?) (params (listof param?)) (a-type complex-type?) (statements (listof stmt?)))
     (if-stmt (condition expr?) (then-block (listof stmt?)) (else-block (listof stmt?)))
     (for-stmt (counter symbol?) (count-set expr?) (statements (listof stmt?))))
 
@@ -64,9 +64,12 @@
     (list-type)
     (none-type))
 
-(define-datatype optional-type optional-type?
-    (empty-type)
-    (some-type (a-type type?)))
+(define-datatype complex-type complex-type?
+    (primitive-type (pr-type type?))
+    (unknown-type)
+    (dummy-type) ; matches the input of functions with no parameter
+    (or-type (case1 complex-type?) (case2 complex-type?))
+    (function-type (from complex-type?) (to complex-type?)))
 
 (define non-return (lambda (s)  (programmer-forbided-val) ))
 (define (is-programmer-forbided-val? v)
