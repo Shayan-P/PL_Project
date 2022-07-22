@@ -51,9 +51,9 @@
     (function-builder name body (cdr args) (benv-extend-inplace local-env (get-name-arg (car args))  potential-arg) build-env))) )))
 
 (define (first-function-builder name body args build-env)
-    (if (null?  args) (proc-val (lambda (global-env dummy) (eval-stmts-with-return global-env (box (add-self global-env name)) body)) )
-    (proc-val (lambda (global-env potential-arg) (if (is-end-of-args-val?  potential-arg) (add-rest-of-arg-and-eval body args (box (add-self global-env name)) global-env build-env)
-    (function-builder name body (cdr args) (benv-extend-inplace (box (add-self global-env name)) (get-name-arg (car args))  potential-arg) build-env))))))
+    (if (null?  args) (proc-val (lambda (global-env dummy) (eval-stmts-with-return global-env (box (add-self build-env global-env name)) body)) )
+    (proc-val (lambda (global-env potential-arg) (if (is-end-of-args-val?  potential-arg) (add-rest-of-arg-and-eval body args (box (add-self build-env global-env name)) global-env build-env)
+    (function-builder name body (cdr args) (benv-extend-inplace (box (add-self build-env global-env name)) (get-name-arg (car args))  potential-arg) build-env))))))
 
 
 (define empty-benv `())
@@ -76,7 +76,7 @@
 (define (benv-extend-replace! benv name val) (if  (is-not-found-val?  (benv-lookup benv name)) (set-box! benv (env-extend  (unbox benv) name (box val))) (set-box!  (benv-lookup-direct  benv name) val)))
 (define (benv-extend-direct! benv name box) (set-box! benv (env-extend (unbox benv) name box)))
 (define (benv-lookup benv v) (env-lookup (unbox benv) v))
-(define (add-self global-env name) (env-extend prelude-env name (box (benv-lookup global-env name))))
+(define (add-self build-env global-env name) (env-extend build-env name (box (benv-lookup global-env name))))
 (define (benv-lookup-not-tank benv name) (let [(v (benv-lookup benv name))] 
     (cases val v
         (tank (e local-env global-env) (let [(com-val (eval-expr global-env local-env e))] 
@@ -100,6 +100,14 @@
         (list-val (f (force-list arg1-not-tank) (force-list arg2-not-tank)))
         )))))))
 
+(define (equalfunc)
+    (proc-val (lambda (e arg1)
+        (proc-val (lambda (e arg2) 
+        (let [(arg1-not-tank (force-not-tank arg1)) (arg2-not-tank (force-not-tank arg2))]
+        (if (is-num? arg1-not-tank) 
+        (bool-val (= (force-num arg1-not-tank) (force-num arg2-not-tank)))
+        (bool-val (not (xor (force-bool arg1-not-tank) (force-bool arg2-not-tank))))
+        )))))))
 
 (define (mulfunc)
     (proc-val (lambda (e arg1)
@@ -148,7 +156,7 @@
         (list `$minus (pnf2 -))
         (list `$div (pnf2 /))
         (list `$dummy (pnf2 *))
-        (list `$eq? (pnf2-num-to-bool (lambda (a b) (if (= a b) #t #f))))
+        (list `$eq? (equalfunc))
         (list `$lt? (pnf2-num-to-bool (lambda (a b) (if (< a b) #t #f))))
         (list `$gt? (pnf2-num-to-bool (lambda (a b) (if (> a b) #t #f))))
         (list `$or (pnf2bool (lambda (a b) (or a b))))
