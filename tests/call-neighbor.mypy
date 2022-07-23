@@ -1,0 +1,15 @@
+checked def yyy(x=3, y=[1, 2, 5], z=17):
+    print(x);
+    print(y);
+    print(z);
+    print(2222);
+    ;
+
+def xxx(x=2, y=[1, 2, 3], z=12):
+    yyy();
+    yyy(x, y, z);
+    ;
+
+xxx(1, [1, 2], 3);
+xxx();
+xxx(1, [1, 77]);
