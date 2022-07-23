@@ -6,11 +6,11 @@
 (provide eval-stmts prelude-env benv-lookup )
 
 (define debug (lambda (s) (let [
-   (t1 (pretty-print `************))(t2 (pretty-print s))(t3 (pretty-print `*********))
+  ; (t1 (pretty-print `************))(t2 (pretty-print s))(t3 (pretty-print `*********))
     ] s)))
 
 (define debug2 (lambda (s) (let [
-   (t1 (pretty-print `*AAAAAAAAAA*))(t2 (pretty-print s))(t3 (pretty-print `*AAAAAAAAAAAAAA*))
+  ; (t1 (pretty-print `*AAAAAAAAAA*))(t2 (pretty-print s))(t3 (pretty-print `*AAAAAAAAAAAAAA*))
     ] s)))
 
 (define our-pretty-print (lambda (s)
@@ -82,7 +82,7 @@
 (define (benv-extend-replace! benv name val) (if  (is-not-found-val?  (benv-lookup benv name)) (set-box! benv (env-extend  (unbox benv) name (box val))) (set-box!  (benv-lookup-direct  benv name) val)))
 (define (benv-extend-direct! benv name box) (set-box! benv (env-extend (unbox benv) name box)))
 (define (benv-lookup benv v) (env-lookup (debug (unbox benv)) v))
-(define (add-self build-env global-env name) (debug2 (env-extend build-env name (box (benv-lookup global-env name)))))
+(define (add-self build-env global-env name) (debug2 (env-extend (unbox build-env) name (box (benv-lookup global-env name)))))
 (define (benv-lookup-not-tank benv name) (let [(v (benv-lookup benv name))] 
     (cases val v
         (tank (e local-env global-env) (let [(com-val (eval-expr global-env local-env e))] 
