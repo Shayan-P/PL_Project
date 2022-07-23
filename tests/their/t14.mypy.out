@@ -1,3 +1,8 @@
-ok#t
-7
-'finished
+Type Error: wrong assignment type
+inner trace: 
+
+(assign-stmt
+ 'l
+ (primitive-type (int-type))
+ (list-expr (list (num-expr 1) (num-expr 3) (num-expr 5) (num-expr 7))))
+

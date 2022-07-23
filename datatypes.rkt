@@ -7,7 +7,8 @@
     param param? param-with-default is-num? is-break? break-val is-continue? continue-val is-bool? not-found-val is-not-found-val?
     val val? num-val proc-val none-val non-return list-val get-name-arg get-defualt-arg bool-val force-bool tank is-tank? 
     force-num force-proc force-list programmer-forbided-val is-programmer-forbided-val? program program? prog
-    type type? int-type bool-type float-type list-type none-type complex-type complex-type? primitive-type unknown-type dummy-type function-type or-type)
+    type type? int-type bool-type float-type list-type none-type complex-type complex-type? primitive-type unknown-type dummy-type function-type or-type 
+    or-type? unknown-type? function-type? end-of-args-type? end-of-args-type statement-return-type)
 
 (define-datatype param param?
     (param-with-default (name symbol?) (a-type complex-type?) (default expr?)))
@@ -67,9 +68,32 @@
 (define-datatype complex-type complex-type?
     (primitive-type (pr-type type?))
     (unknown-type)
+    (end-of-args-type)
     (dummy-type) ; matches the input of functions with no parameter
+    (statement-return-type)
     (or-type (case1 complex-type?) (case2 complex-type?))
     (function-type (from complex-type?) (to complex-type?)))
+
+(define (function-type? a-type)
+    (cases complex-type a-type
+        (function-type (a b) #t)
+        (else #f)))
+
+(define (unknown-type? a-type)
+    (cases complex-type a-type
+        (unknown-type () #t)
+        (else #f)))
+
+(define (end-of-args-type? a-type)
+    (cases complex-type a-type
+        (end-of-args-type () #t)
+        (else #f)))
+
+
+(define (or-type? a-type)
+    (cases complex-type a-type
+        (or-type (a b) #t)
+        (else #f)))
 
 (define non-return (lambda (s)  (programmer-forbided-val) ))
 (define (is-programmer-forbided-val? v)

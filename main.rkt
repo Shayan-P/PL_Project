@@ -16,7 +16,7 @@
         (cases program my_program
             (prog (lines type-check-enable)
                 (begin
-                    (if type-check-enable (type-check-stms lines) (void))
+                    (if type-check-enable (type-check-stmts lines) (void))
                     (eval-stmts env env (debug lines))
                     'finished)))))
 (evaluate (car (vector->list (current-command-line-arguments))))

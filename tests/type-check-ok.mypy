@@ -10,4 +10,3 @@ def f(n: int = 2)-> None:
     ;
 c: None = f(7);
 c2 = f(10);
-
