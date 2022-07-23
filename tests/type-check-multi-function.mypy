@@ -1,0 +1,14 @@
+checked
+
+def two(a=10, b=30):
+    print(a);
+    print(b);
+;
+
+def zero():
+    print(88);
+;
+
+two(1, 2);
+zero();
+

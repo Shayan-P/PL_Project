@@ -26,7 +26,7 @@
     (let [(r (cases stmt  s
         (side-effect-stmt (e) (non-return(eval-expr global-env env e)))
         (assign-stmt (name otype val) (non-return(benv-extend-replace! env name  (lazy-eval-expr global-env env val))))
-        (def-stmt (name arg otype body) (non-return(benv-extend-replace! env name (first-function-builder name body arg (deep-copy-benv  env) ))))
+        (def-stmt (name arg otype body) (non-return(benv-extend-replace! env name (first-function-builder name body arg (shallow-copy-benv  env) ))))
         (return-value-stmt (e) (eval-expr global-env env e))
         (if-stmt (cond true false) (if (force-bool (force-not-tank (eval-expr global-env env cond))) (eval-stmts-with-return global-env env true) (eval-stmts-with-return global-env env false)))
         (for-stmt (counter-name list body) (for global-env env counter-name (force-list (force-not-tank (eval-expr global-env env list))) body ))
@@ -72,6 +72,7 @@
 (define (env-lookup env v) (unbox (find-box-in-env env v)))
 (define (benv-lookup-direct benv v) (find-box-in-env (unbox benv) v))
 (define (env-extend env name val) (cons (list name val) env))
+(define (shallow-copy-benv env) (box (unbox env)))
 (define (deep-copy-env env) (if (null? env) `() (cons (list (debug(car (car env))) (box (unbox (debug (cadr (debug (car env))))))) (deep-copy-env (cdr env)))))
 (define (merge global-env env) (box (append (unbox env) (unbox global-env))))
 

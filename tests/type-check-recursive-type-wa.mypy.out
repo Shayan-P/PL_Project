@@ -1,0 +1,43 @@
+Type Error: type error in function call
+inner trace: 
+
+(app-expr (ident-expr '$index) (ident-expr 'x))
+
+
+(app-expr (app-expr (ident-expr '$index) (ident-expr 'x)) (num-expr 3))
+
+
+(app-expr
+ (ident-expr 'print)
+ (app-expr (app-expr (ident-expr '$index) (ident-expr 'x)) (num-expr 3)))
+
+
+(app-expr
+ (app-expr
+  (ident-expr 'print)
+  (app-expr (app-expr (ident-expr '$index) (ident-expr 'x)) (num-expr 3)))
+ (end-of-args-expr))
+
+
+(side-effect-stmt
+ (app-expr
+  (app-expr
+   (ident-expr 'print)
+   (app-expr (app-expr (ident-expr '$index) (ident-expr 'x)) (num-expr 3)))
+  (end-of-args-expr)))
+
+
+(def-stmt
+ 'f
+ '()
+ (primitive-type (int-type))
+ (list
+  (assign-stmt 'x (unknown-type) (app-expr (ident-expr 'f) (end-of-args-expr)))
+  (side-effect-stmt
+   (app-expr
+    (app-expr
+     (ident-expr 'print)
+     (app-expr (app-expr (ident-expr '$index) (ident-expr 'x)) (num-expr 3)))
+    (end-of-args-expr)))
+  (return-value-stmt (ident-expr 'x))))
+
