@@ -6,9 +6,12 @@
 (provide eval-stmts prelude-env benv-lookup )
 
 (define debug (lambda (s) (let [
-   ; (t1 (pretty-print `************))(t2 (pretty-print s))(t3 (pretty-print `*********))
+   (t1 (pretty-print `************))(t2 (pretty-print s))(t3 (pretty-print `*********))
     ] s)))
 
+(define debug2 (lambda (s) (let [
+   (t1 (pretty-print `*AAAAAAAAAA*))(t2 (pretty-print s))(t3 (pretty-print `*AAAAAAAAAAAAAA*))
+    ] s)))
 
 (define our-pretty-print (lambda (s)
  (if (procedure? s) (display s) (display s ))))
@@ -23,7 +26,7 @@
     (let [(r (cases stmt  s
         (side-effect-stmt (e) (non-return(eval-expr global-env env e)))
         (assign-stmt (name otype val) (non-return(benv-extend-replace! env name  (lazy-eval-expr global-env env val))))
-        (def-stmt (name arg otype body) (non-return(benv-extend-replace! env name (first-function-builder name body arg env))))
+        (def-stmt (name arg otype body) (non-return(benv-extend-replace! env name (first-function-builder name body arg (deep-copy-benv  env) ))))
         (return-value-stmt (e) (eval-expr global-env env e))
         (if-stmt (cond true false) (if (force-bool (force-not-tank (eval-expr global-env env cond))) (eval-stmts-with-return global-env env true) (eval-stmts-with-return global-env env false)))
         (for-stmt (counter-name list body) (for global-env env counter-name (force-list (force-not-tank (eval-expr global-env env list))) body ))
@@ -51,9 +54,12 @@
     (function-builder name body (cdr args) (benv-extend-inplace local-env (get-name-arg (car args))  potential-arg) build-env))) )))
 
 (define (first-function-builder name body args build-env)
-    (if (null?  args) (proc-val (lambda (global-env dummy) (eval-stmts-with-return global-env (box (add-self global-env name)) body)) )
-    (proc-val (lambda (global-env potential-arg) (if (is-end-of-args-val?  potential-arg) (add-rest-of-arg-and-eval body args (box (add-self global-env name)) global-env build-env)
-    (function-builder name body (cdr args) (benv-extend-inplace (box (add-self global-env name)) (get-name-arg (car args))  potential-arg) build-env))))))
+    (let [
+       ; (ignore (pretty-print name))(ignore2 (pretty-print (unbox build-env))) (ignore3 (pretty-print `********))
+        ]
+    (if (null?  args) (proc-val (lambda (global-env dummy) (eval-stmts-with-return global-env (box (add-self build-env global-env name)) body)) )
+    (proc-val (lambda (global-env potential-arg) (if (is-end-of-args-val?  potential-arg) (add-rest-of-arg-and-eval body args (box (add-self build-env global-env name)) global-env build-env)
+    (function-builder name body (cdr args) (benv-extend-inplace (box (add-self build-env global-env name)) (get-name-arg (car args))  potential-arg) build-env)))))))
 
 
 (define empty-benv `())
@@ -75,8 +81,8 @@
 (define (benv-extend! benv name val) (set-box! benv (env-extend (unbox benv) name (box val))))
 (define (benv-extend-replace! benv name val) (if  (is-not-found-val?  (benv-lookup benv name)) (set-box! benv (env-extend  (unbox benv) name (box val))) (set-box!  (benv-lookup-direct  benv name) val)))
 (define (benv-extend-direct! benv name box) (set-box! benv (env-extend (unbox benv) name box)))
-(define (benv-lookup benv v) (env-lookup (unbox benv) v))
-(define (add-self global-env name) (env-extend prelude-env name (box (benv-lookup global-env name))))
+(define (benv-lookup benv v) (env-lookup (debug (unbox benv)) v))
+(define (add-self build-env global-env name) (debug2 (env-extend build-env name (box (benv-lookup global-env name)))))
 (define (benv-lookup-not-tank benv name) (let [(v (benv-lookup benv name))] 
     (cases val v
         (tank (e local-env global-env) (let [(com-val (eval-expr global-env local-env e))] 
