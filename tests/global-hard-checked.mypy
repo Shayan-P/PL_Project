@@ -1,0 +1,9 @@
+checked
+
+def f():
+    global a;
+    print(a + [1, 2, 3]);
+;
+
+a = [2, 3];
+f();

@@ -1,0 +1,7 @@
+checked
+
+def f() -> int:
+    x = f();
+    print(x[3]);
+    return x;
+;

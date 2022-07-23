@@ -1,0 +1,25 @@
+Type Error: type error in function call
+inner trace: 
+
+(app-expr (app-expr (ident-expr '$plus) (ident-expr 'a)) (ident-expr 'b))
+
+
+(app-expr
+ (ident-expr 'print)
+ (app-expr (app-expr (ident-expr '$plus) (ident-expr 'a)) (ident-expr 'b)))
+
+
+(app-expr
+ (app-expr
+  (ident-expr 'print)
+  (app-expr (app-expr (ident-expr '$plus) (ident-expr 'a)) (ident-expr 'b)))
+ (end-of-args-expr))
+
+
+(side-effect-stmt
+ (app-expr
+  (app-expr
+   (ident-expr 'print)
+   (app-expr (app-expr (ident-expr '$plus) (ident-expr 'a)) (ident-expr 'b)))
+  (end-of-args-expr)))
+
