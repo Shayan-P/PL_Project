@@ -168,9 +168,10 @@
                                         (type-check-stmts-non-global (box global-tenv) (box tenv) else-body)))))
                         (for-stmt (counter-name count-set body)
                             (let [(count-set-type (type-of-expression tenv count-set))]
-                                (begin
-                                    (error-if-not-type "for counter-set not list" (merge-types (primitive-type (list-type)) count-set-type))
-                                    (type-check-stmts-non-global (box global-tenv) (box tenv) body)))))))
+                                (let [(new-tenv (extended-tenv tenv counter-name (unknown-type)))]
+                                    (begin
+                                        (error-if-not-type "for counter-set not list" (merge-types (primitive-type (list-type)) count-set-type))
+                                        (type-check-stmts-non-global (box global-tenv) (box new-tenv) body))))))))
             (dummy2 (pop-trace))]
         my-ans))
 
