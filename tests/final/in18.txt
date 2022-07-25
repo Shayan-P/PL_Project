@@ -1,0 +1,11 @@
+def f(n = 2):
+    global a;
+    a = 10;
+    print(8);
+    return 17;
+;
+
+a = 5;
+b = f(18);
+print(b);
+print(a);
